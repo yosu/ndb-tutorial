@@ -62,6 +62,12 @@ class SubmitForm(webapp2.RequestHandler):
         book_id = int(book_id_str)
         book = Book.get_by_id(book_id)
 
+        if not book:
+            self.response.clear()
+            self.response.set_status(404)
+            self.response.write('Not Found')
+            return
+
         greeting = Greeting(parent=book.key,
                             content=self.request.get('content'))
         greeting.put()
@@ -92,6 +98,12 @@ class BookHandler(webapp2.RequestHandler):
     def get(self, book_id_str):
         book_id = int(book_id_str)
         book = Book.get_by_id(book_id)
+
+        if not book:
+            self.response.clear()
+            self.response.set_status(404)
+            self.response.write('Not Found')
+            return
 
         greetings = Greeting.query_book(book.key).fetch(20)
 
