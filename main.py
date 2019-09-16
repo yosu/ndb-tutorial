@@ -39,6 +39,9 @@ JINJA_ENVIRONMENT = jinja2.Environment(
 class Book(ndb.Model):
     name = ndb.StringProperty()
 
+    def greetings(self):
+        return Greeting.query(ancestor=self.key).fetch()
+
     @classmethod
     def list(cls, limit=20):
         return cls.query().order(cls.name).fetch(limit)

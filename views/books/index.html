@@ -11,7 +11,7 @@
 {% if books %}
   <ul>
     {% for book in books %}
-      <li>{{ book.name }}: <a href="/books/{{book.key.id()}}">Show</a></li>
+      <li>{{ book.name }} ({{ book.greetings() | count }} greetings): <a href="/books/{{book.key.id()}}">Show</a></li>
     {% endfor %}
   </ul>
 {% else %}
