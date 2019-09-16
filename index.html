@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+{% autoescape true %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Guest Book</title>
+</head>
+<body>
+<div class="books">
+{% if books %}
+  <ul>
+    {% for book in books %}
+      <li>{{ book.name }}</li>
+    {% endfor %}
+  </ul>
+{% else %}
+  No books.
+{% endif %}
+</div>
+<form action="/" method="post">
+    <div>
+        <input type="text" name="book_name">
+    </div>
+    <div>
+        <input type="submit" value="Add a book">
+    </div>
+</form>
+</body>
+</html>
+{% endautoescape %}

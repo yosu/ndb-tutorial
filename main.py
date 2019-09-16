@@ -24,10 +24,19 @@ For more information, see README.md
 import cgi
 import textwrap
 import urllib
+import os
 
 from google.appengine.ext import ndb
 
 import webapp2
+import jinja2
+
+
+JINJA_ENVIRONMENT = jinja2.Environment(
+    loader=jinja2.FileSystemLoader(os.path.dirname(__file__)),
+    extensions=['jinja2.ext.autoescape'],
+    autoescape=True
+)
 
 
 class Book(ndb.Model):
@@ -107,23 +116,13 @@ class SubmitForm(webapp2.RequestHandler):
 class BooksHandler(webapp2.RequestHandler):
     def get(self):
         books = Book.list()
-        blockquotes = ["<blockquote>{}</blockquote>".format(book.name) for book in books]
 
-        self.response.out.write(textwrap.dedent("""\
-            <html>
-              <body>
-                {blockquotes}
-                <form action="/" method="post">
-                  <div>
-                    <input type="text" name="book_name">
-                  </div>
-                  <div>
-                    <input type="submit" value="Add a book">
-                  </div>
-                </form>
-              </body>
-            </html>""").format(
-            blockquotes='\n'.join(blockquotes)))
+        template_args = {
+            'books': books
+        }
+        template = JINJA_ENVIRONMENT.get_template('index.html')
+
+        self.response.write(template.render(template_args))
 
     def post(self):
         book_name = self.request.get('book_name')
