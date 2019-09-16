@@ -30,6 +30,13 @@ from google.appengine.ext import ndb
 import webapp2
 
 
+class Book(ndb.Model):
+    name = ndb.StringProperty()
+
+    @classmethod
+    def list(cls, limit=20):
+        return cls.query().order(cls.name).fetch(limit)
+
 # [START greeting]
 class Greeting(ndb.Model):
     """Models an individual Guestbook entry with content and date."""
@@ -97,8 +104,37 @@ class SubmitForm(webapp2.RequestHandler):
             {'guestbook_name': guestbook_name}))
 
 
+class BooksHandler(webapp2.RequestHandler):
+    def get(self):
+        books = Book.list()
+        blockquotes = ["<blockquote>{}</blockquote>".format(book.name) for book in books]
+
+        self.response.out.write(textwrap.dedent("""\
+            <html>
+              <body>
+                {blockquotes}
+                <form action="/" method="post">
+                  <div>
+                    <input type="text" name="book_name">
+                  </div>
+                  <div>
+                    <input type="submit" value="Add a book">
+                  </div>
+                </form>
+              </body>
+            </html>""").format(
+            blockquotes='\n'.join(blockquotes)))
+
+    def post(self):
+        book_name = self.request.get('book_name')
+        book = Book(name=book_name)
+        book.put()
+
+        self.redirect('/')
+
+
 app = webapp2.WSGIApplication([
-    ('/', MainPage),
+    ('/', BooksHandler),
     ('/sign', SubmitForm)
 ])
 # [END all]
