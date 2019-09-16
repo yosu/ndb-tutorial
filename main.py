@@ -99,19 +99,16 @@ class MainPage(webapp2.RequestHandler):
                 guestbook_name=cgi.escape(guestbook_name)))
 
 
-# [START submit]
 class SubmitForm(webapp2.RequestHandler):
-    def post(self):
-        # We set the parent key on each 'Greeting' to ensure each guestbook's
-        # greetings are in the same entity group.
-        guestbook_name = self.request.get('guestbook_name')
-        greeting = Greeting(parent=ndb.Key("Book",
-                                           guestbook_name or "*notitle*"),
+    def post(self, book_id_str):
+        book_id = int(book_id_str)
+        book = Book.get_by_id(book_id)
+
+        greeting = Greeting(parent=book.key,
                             content=self.request.get('content'))
         greeting.put()
-# [END submit]
-        self.redirect('/?' + urllib.urlencode(
-            {'guestbook_name': guestbook_name}))
+
+        self.redirect('/books/{}'.format(book_id))
 
 
 class BooksHandler(webapp2.RequestHandler):
@@ -137,12 +134,21 @@ class BookHandler(webapp2.RequestHandler):
     def get(self, book_id_str):
         book_id = int(book_id_str)
         book = Book.get_by_id(book_id)
-        self.response.write("This is book page: {}".format(book.name))
+
+        greetings = Greeting.query_book(book.key).fetch(20)
+
+        template_args = {
+            'book': book,
+            'greetings': greetings
+        }
+        template = JINJA_ENVIRONMENT.get_template('show.html')
+
+        self.response.write(template.render(template_args))
 
 
 app = webapp2.WSGIApplication([
     ('/', BooksHandler),
-    ('/sign', SubmitForm),
-    (r'/books/(\d+)', BookHandler)
+    (r'/books/(\d+)', BookHandler),
+    (r'/books/(\d+)/sign', SubmitForm)
 ])
 # [END all]

@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+{% autoescape true %}
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Greetings</title>
+</head>
+<body>
+<div>
+  <h1>Book: {{ book.name }}</h1>
+</div>
+<div class="greetings">
+  {% for greeting in greetings %}
+  <blockquote>{{ greeting.content }}</blockquote>
+  {% endfor %}
+</div>
+<div>
+  <form action="/books/{{ book.key.id() }}/sign" method="post">
+    <div>
+      <textarea name="content" rows="3" cols="60">
+      </textarea>
+    </div>
+    <div>
+      <input type="submit" value="Sign Guestbook">
+    </div>
+  </form>
+</div>
+</body>
+</html>
+{% endautoescape %}
