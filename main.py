@@ -46,6 +46,7 @@ class Book(ndb.Model):
     def list(cls, limit=20):
         return cls.query().order(cls.name).fetch(limit)
 
+
 # [START greeting]
 class Greeting(ndb.Model):
     """Models an individual Guestbook entry with content and date."""
@@ -132,8 +133,16 @@ class BooksHandler(webapp2.RequestHandler):
         self.redirect('/')
 
 
+class BookHandler(webapp2.RequestHandler):
+    def get(self, book_id_str):
+        book_id = int(book_id_str)
+        book = Book.get_by_id(book_id)
+        self.response.write("This is book page: {}".format(book.name))
+
+
 app = webapp2.WSGIApplication([
     ('/', BooksHandler),
-    ('/sign', SubmitForm)
+    ('/sign', SubmitForm),
+    (r'/books/(\d+)', BookHandler)
 ])
 # [END all]
